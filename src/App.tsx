@@ -1,23 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import * as signalR from "@microsoft/signalr";
 
 function App() {
+  const [message, setMessage] = useState<string>("Hello World");
+  const [receivedMessages, setReceivedMessages] = useState<string[]>([]); // [
+  let connection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:7213/myfirsthub")
+    .build();
+
+  connection.start();
+
+  const handleSendMessageToFirstHub = () => {
+    connection.invoke("SendMessage", message).catch((err) => {
+      return console.error(err.toString());
+    });
+  };
+  connection.on("receivedMessage", (message) => {
+    setReceivedMessages([...receivedMessages, message]);
+  });
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <button onClick={handleSendMessageToFirstHub}>Click me</button>
+        {receivedMessages?.map((message) => (
+          <p key={message}>{message}</p>
+        ))}
       </header>
     </div>
   );
