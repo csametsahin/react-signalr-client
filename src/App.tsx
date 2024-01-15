@@ -6,6 +6,7 @@ function App() {
   // States
   const [message, setMessage] = useState<string>("Hello World");
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
+  const [connectedUsers, setConnectedUsers] = useState<string[]>([]);
   const [connecting, setConnecting] = useState<boolean>(false);
   const [connected, setConnected] = useState<boolean>(false);
   // Hub Connection Methods
@@ -14,6 +15,7 @@ function App() {
     .withAutomaticReconnect() // default 0 - 2 - 10 - 30 if connection is not failed at first
     .build();
 
+  // TODO : there is a potential re-render error while users connected in this component
   const handleSendMessageToHub = () => {
     connection.invoke("SendMessage", message).catch((err) => {
       return console.error(err.toString());
@@ -22,7 +24,15 @@ function App() {
   connection.on("receivedMessage", (message) => {
     setReceivedMessages([...receivedMessages, message]);
   });
-
+  connection.on("userConnected", (connectionId) => {
+    console.log(`${connectionId} bağlandı`);
+  });
+  connection.on("userDisconnected", (connectionId) => {
+    console.log(`${connectionId} ayrıldıo`);
+  });
+  connection.on("clients", (clients) => {
+    console.log(clients);
+  });
   const startHubConnection = async () => {
     try {
       await connection.start();
@@ -78,6 +88,9 @@ function App() {
         <button onClick={handleSendMessageToHub}>Click me</button>
         {receivedMessages?.map((message) => (
           <p key={message}>{message}</p>
+        ))}
+        {connectedUsers?.map((user) => (
+          <p key={user}>{user}</p>
         ))}
       </header>
     </div>
