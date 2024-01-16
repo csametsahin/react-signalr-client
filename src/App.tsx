@@ -82,7 +82,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         {connecting && <p>Connecting...</p>}
-        {connected && <p>Connected - {myConnectionId}</p>}
+        {connected && <p>Connected - </p>}
         <input
           type="text"
           value={message}
