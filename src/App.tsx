@@ -11,13 +11,13 @@ function App() {
   const [connected, setConnected] = useState<boolean>(false);
   // Hub Connection Methods
   let connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7213/myfirsthub")
+    .withUrl("https://localhost:7213/messagehub")
     .withAutomaticReconnect() // default 0 - 2 - 10 - 30 if connection is not failed at first
     .build();
 
-  // TODO : there is a potential re-render error while users connected in this component
+  // TODO : there is a re-render error while users connected in this component should fix it asap
   const handleSendMessageToHub = () => {
-    connection.invoke("SendMessage", message).catch((err) => {
+    connection.invoke("SendMessageAsync", message).catch((err) => {
       return console.error(err.toString());
     });
   };
@@ -32,6 +32,9 @@ function App() {
   });
   connection.on("clients", (clients) => {
     console.log(clients);
+  });
+  connection.on("getConnectionId", (clientId) => {
+    console.log(clientId);
   });
   const startHubConnection = async () => {
     try {
@@ -79,7 +82,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         {connecting && <p>Connecting...</p>}
-        {connected && <p>Connected</p>}
+        {connected && <p>Connected - {myConnectionId}</p>}
         <input
           type="text"
           value={message}
