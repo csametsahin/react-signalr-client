@@ -17,10 +17,15 @@ function App() {
 
   // TODO : there is a re-render error while users connected in this component should fix it asap
   const handleSendMessageToHub = () => {
-    connection.invoke("SendMessageAsync", message).catch((err) => {
+    connection.invoke("SendMessageAsync", message, "testgroup").catch((err) => {
       return console.error(err.toString());
     });
   };
+  connection
+    .invoke("AddUserToGroup", connectedUsers[0], "testgroup")
+    .catch((err) => {
+      return console.error(err.toString());
+    });
   connection.on("receivedMessage", (message) => {
     setReceivedMessages([...receivedMessages, message]);
   });
